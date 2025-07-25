@@ -1,14 +1,9 @@
-import numpy as np
-from PIL import Image
-from tensorflow.keras.applications.resnet50 import preprocess_input
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-IMG_SIZE = (224, 224)
-
-def binary_classification_view(model, formatter):
+def binary_classification_view(remote_predictor, formatter):
     @csrf_exempt
     @api_view(["POST"])
     def view(request):
@@ -17,15 +12,8 @@ def binary_classification_view(model, formatter):
             return Response({"error": "No image provided."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            image = Image.open(image_file).convert("RGB")
-            image = image.resize(IMG_SIZE)
-            array = np.array(image)
-            array = preprocess_input(array)
-            array = np.expand_dims(array, axis=0)
-
-            prediction = float(model.predict(array)[0][0])
-            return Response(formatter(prediction))
-
+            prediction_data = remote_predictor(image_file)
+            return Response(formatter(float(prediction_data["confidence"]) if "confidence" in prediction_data else 0.0))
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

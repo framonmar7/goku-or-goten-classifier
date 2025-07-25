@@ -4,7 +4,7 @@ from backend.views import (
     format_binary_prediction,
     format_character_prediction
 )
-from backend.inference.models import goten_model, goku_model, arbiter_model
+from backend.inference.remotes import goten_model, goku_model, arbiter_model
 
 urlpatterns = [
     path("classify/goten/", binary_classification_view(goten_model, format_binary_prediction)),
