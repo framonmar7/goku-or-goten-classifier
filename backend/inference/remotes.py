@@ -1,9 +1,9 @@
 import requests
 
 API_ENDPOINTS = {
-    "goten_model": "https://goten-detector.onrender.com/api/classify/",
-    "goku_model": "https://goku-detector.onrender.com/api/classify/",
-    "arbiter_model": "https://goku-vs-goten-arbiter.onrender.com/api/classify/",
+    "goten_model": "https://goten-detector.framonmar7.dev/api/classify/",
+    "goku_model": "https://goku-detector.framonmar7.dev/api/classify/",
+    "arbiter_model": "https://goku-vs-goten-arbiter.framonmar7.dev/api/classify/",
 }
 
 def remote_predictor(endpoint: str):
