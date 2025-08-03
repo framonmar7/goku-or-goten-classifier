@@ -15,20 +15,26 @@ def binary_classification_view(model, formatter):
         image_file = request.FILES.get("image")
         if not image_file:
             return Response({"error": "No image provided."}, status=status.HTTP_400_BAD_REQUEST)
-
+        
         try:
             image = Image.open(image_file).convert("RGB")
             image = image.resize(IMG_SIZE)
             array = np.array(image)
             array = preprocess_input(array)
-            array = np.expand_dims(array, axis=0)
-
-            prediction = float(model.predict(array)[0][0])
+            array = np.expand_dims(array, axis=0).astype(np.float32)
+            
+            input_details = model.get_input_details()
+            output_details = model.get_output_details()
+            
+            model.set_tensor(input_details[0]['index'], array)
+            model.invoke()
+            prediction = float(model.get_tensor(output_details[0]['index'])[0][0])
+            
             return Response(formatter(prediction))
-
+        
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+    
     return view
 
 def format_binary_prediction(p: float) -> dict:

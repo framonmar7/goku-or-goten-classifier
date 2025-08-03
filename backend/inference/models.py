@@ -1,4 +1,4 @@
-from tensorflow.keras.models import load_model
+import tensorflow as tf
 from huggingface_hub import hf_hub_download
 
 model_files = {
@@ -11,7 +11,9 @@ models = {}
 
 for key, filename in model_files.items():
     path = hf_hub_download(repo_id="framonmar7/goku-or-goten-classifier", filename=filename)
-    models[key] = load_model(path)
+    interpreter = tf.lite.Interpreter(model_path=path)
+    interpreter.allocate_tensors()
+    models[key] = interpreter
 
 goten_model = models["goten_model"]
 goku_model = models["goku_model"]
