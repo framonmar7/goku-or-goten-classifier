@@ -2,6 +2,8 @@
 
 This is a technical challenge in binary image classification, designed to evaluate whether a given face image corresponds to **Son Goten** or **Son Goku (child)**. The project explores how deep learning models handle visual ambiguity between nearly identical characters from the *Dragon Ball* universe.
 
+Live demo available at goku-or-goten.framonmar7.dev
+
 ## 🔬 Models
 
 This project uses **three CNN-based models** trained via transfer learning:
@@ -11,6 +13,9 @@ This project uses **three CNN-based models** trained via transfer learning:
 - An **arbiter model** that intervenes when the other two disagree, acting as a tie-breaker to decide whether the face belongs to Goten or Goku.
 
 The dataset includes cropped facial images of both characters in their childhood form. This resemblance introduces a real challenge, pushing image classification techniques to their limits in terms of feature extraction and decision boundaries.
+
+You can explore and download the models on Hugging Face:
+👉 https://huggingface.co/framonmar7/goku-or-goten-classifier
 
 ## ⚙️ Setup Instructions
 
