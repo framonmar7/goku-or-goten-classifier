@@ -2,9 +2,9 @@ from tensorflow.keras.models import load_model
 from huggingface_hub import hf_hub_download
 
 model_files = {
-    "goten_model": "goten_model.keras",
-    "goku_model": "goku_model.keras",
-    "arbiter_model": "arbiter_model.keras",
+    "goten_model": "goten_model.tflite",
+    "goku_model": "goku_model.tflite",
+    "arbiter_model": "arbiter_model.tflite",
 }
 
 models = {}
