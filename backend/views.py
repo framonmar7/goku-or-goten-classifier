@@ -5,8 +5,19 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.http import JsonResponse
 
 IMG_SIZE = (224, 224)
+
+def index(request):
+    return JsonResponse({
+        "message": "Welcome to the Goku or Goten API",
+        "endpoints": {
+            "goten": "/api/classify/goten",
+            "goku": "/api/classify/goku",
+            "goten-vs-goku": "/api/classify/goten-vs-goku"
+        }
+    })
 
 def binary_classification_view(model, formatter):
     @csrf_exempt
