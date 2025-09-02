@@ -1,11 +1,12 @@
-import numpy as np
-from PIL import Image
-from tensorflow.keras.applications.resnet50 import preprocess_input
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import JsonResponse
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework.parsers import MultiPartParser, FormParser
+from backend.inference.models import goten_model, goku_model, arbiter_model
+from backend.docs.schemas import file_param, binary_responses, character_responses
+from backend.validators import load_and_validate_image, prepare_tensor_for_resnet
 
 IMG_SIZE = (224, 224)
 
@@ -16,36 +17,40 @@ def index(request):
             "goten": "/api/classify/goten",
             "goku": "/api/classify/goku",
             "goten-vs-goku": "/api/classify/goten-vs-goku"
-        }
+        },
+        "docs": "/docs"
     })
 
-def binary_classification_view(model, formatter):
-    @csrf_exempt
+def classify_image(request, model, formatter):
+    image_file = request.FILES.get("image")
+    if not image_file:
+        return Response({"error": "No image provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+    img = load_and_validate_image(image_file)
+    tensor = prepare_tensor_for_resnet(img, IMG_SIZE)
+
+    input_details = model.get_input_details()
+    output_details = model.get_output_details()
+    model.set_tensor(input_details[0]["index"], tensor)
+    model.invoke()
+    prediction = float(model.get_tensor(output_details[0]["index"])[0][0])
+
+    return Response(formatter(prediction))
+
+def register_endpoint(name, model, formatter, summary, responses):
+    @swagger_auto_schema(
+        method="post",
+        operation_id=name,
+        operation_summary=summary,
+        manual_parameters=[file_param],
+        consumes=["multipart/form-data"],
+        responses=responses,
+        tags=["Classification"],
+    )
     @api_view(["POST"])
+    @parser_classes([MultiPartParser, FormParser])
     def view(request):
-        image_file = request.FILES.get("image")
-        if not image_file:
-            return Response({"error": "No image provided."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            image = Image.open(image_file).convert("RGB")
-            image = image.resize(IMG_SIZE)
-            array = np.array(image)
-            array = preprocess_input(array)
-            array = np.expand_dims(array, axis=0).astype(np.float32)
-            
-            input_details = model.get_input_details()
-            output_details = model.get_output_details()
-            
-            model.set_tensor(input_details[0]['index'], array)
-            model.invoke()
-            prediction = float(model.get_tensor(output_details[0]['index'])[0][0])
-            
-            return Response(formatter(prediction))
-        
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+        return classify_image(request, model, formatter)
     return view
 
 def format_binary_prediction(p: float) -> dict:
@@ -63,3 +68,27 @@ def format_character_prediction(p: float) -> dict:
         "character": "Goten" if is_goten else "Goku",
         "confidence": round(confidence, 4)
     }
+
+classify_goten = register_endpoint(
+    "classifyGoten",
+    goten_model,
+    format_binary_prediction,
+    "Classify if the image is Kid Goten",
+    binary_responses,
+)
+
+classify_goku = register_endpoint(
+    "classifyGoku",
+    goku_model,
+    format_binary_prediction,
+    "Classify if the image is Kid Goku",
+    binary_responses,
+)
+
+classify_goten_vs_goku = register_endpoint(
+    "classifyGotenVsGoku",
+    arbiter_model,
+    format_character_prediction,
+    "Classify whether the image shows Kid Goten or Kid Goku",
+    character_responses,
+)

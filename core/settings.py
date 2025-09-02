@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_yasg',
     'frontend',
     'backend',
 ]
@@ -67,6 +68,11 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ]
+}
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': None,
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
