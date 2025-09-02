@@ -11,7 +11,7 @@ When deployed, the project exposes two main entrypoints:
 - **Root domain** → serves the web application (frontend + backend integration).  
   👉 [https://goku-or-goten.framonmar7.dev](https://goku-or-goten.framonmar7.dev)  
 
-- **`/docs`** → provides interactive API documentation (Swagger UI).  
+- **/docs** → provides interactive API documentation (Swagger UI).  
   👉 [https://goku-or-goten.framonmar7.dev/docs](https://goku-or-goten.framonmar7.dev/docs)  
 
 ---
